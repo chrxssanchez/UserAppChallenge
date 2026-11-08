@@ -1,7 +1,7 @@
 // UsersViewModel.swift
 
 import Foundation
-import Combine
+import Observation
 
 enum UsersState: Equatable {
     case idle
@@ -11,8 +11,9 @@ enum UsersState: Equatable {
 }
 
 @MainActor
-final class UsersViewModel: ObservableObject {
-    @Published private(set) var state: UsersState = .idle
+@Observable
+final class UsersViewModel {
+    private(set) var state: UsersState = .idle
 
     private let apiClient: UsersFetch
 
