@@ -82,6 +82,18 @@ struct UsersViewModelTests {
         #expect(viewModel.state == .loaded(users))
         
     }
+    
+    @Test func `loadingLastsAtLeastFiveMinimumDuration`() async throws {
+        let viewModel = UsersViewModel(
+            apiClient: MockUsersClient(result: .success([])),
+            minimumLoadingDuration: .milliseconds(300)
+        )
+        let start = ContinuousClock.now
+        
+        await viewModel.load()
+        
+        #expect(ContinuousClock.now - start >= .milliseconds(300))
+    }
 }
 
 @MainActor

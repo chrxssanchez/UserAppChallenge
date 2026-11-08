@@ -16,9 +16,11 @@ final class UsersViewModel {
     private(set) var state: UsersState = .idle
 
     private let apiClient: UsersFetch
+    private let minimumLoadingDuration: Duration
 
-    init(apiClient: UsersFetch) {
+    init(apiClient: UsersFetch, minimumLoadingDuration: Duration = .milliseconds(500)) {
         self.apiClient = apiClient
+        self.minimumLoadingDuration = minimumLoadingDuration
     }
     
     var isLoading: Bool {
@@ -28,12 +30,22 @@ final class UsersViewModel {
     func load() async {
         guard !isLoading else { return }
         state = .loading
+        let start = ContinuousClock.now
 
         do {
             let users = try await apiClient.fetchUsers()
+            await waitForMinimumDuration(since: start)
             state = .loaded(users)
         } catch {
+            await waitForMinimumDuration(since: start)
             state = .failed(error.localizedDescription)
+        }
+    }
+    
+    private func waitForMinimumDuration(since start: ContinuousClock.Instant) async {
+        let remaining = minimumLoadingDuration - (ContinuousClock.now - start)
+        if remaining > .zero {
+            try? await Task.sleep(for: remaining)
         }
     }
 }
