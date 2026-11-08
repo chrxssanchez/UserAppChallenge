@@ -6,7 +6,7 @@ protocol UsersFetch {
     func fetchUsers() async throws -> [User]
 }
 
-struct UsersAPIClient {
+struct UsersAPIClient: UsersFetch {
     func fetchUsers() async throws -> [User] {
         let url = URL(string: "https://jsonplaceholder.typicode.com/users")!
         let (data, response) = try await URLSession.shared.data(from: url)
