@@ -1,6 +1,5 @@
 //
 //  Untitled.swift
-//  QantasCodeChallenge
 //
 //  Created by Micah Napier on 12/12/2025.
 //
