@@ -3,7 +3,7 @@
 import SwiftUI
 
 struct UsersListView: View {
-    @ObservedObject private var viewModel = UsersViewModel(apiClient: UsersAPIClient())
+    @StateObject private var viewModel = UsersViewModel(apiClient: UsersAPIClient())
 
     var body: some View {
         NavigationStack {
@@ -15,6 +15,7 @@ struct UsersListView: View {
                             await viewModel.load()
                         }
                     }
+                    .disabled(viewModel.isLoading)
                 }
                 .task {
                     await viewModel.load()
