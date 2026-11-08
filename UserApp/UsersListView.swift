@@ -7,7 +7,12 @@ struct UsersListView: View {
 
     var body: some View {
         NavigationStack {
-            content
+            List{
+                content
+            }
+            .refreshable {
+                await viewModel.load()
+            }
                 .navigationTitle("Users")
                 .toolbar {
                     Button("Refresh") {
@@ -28,19 +33,27 @@ struct UsersListView: View {
         switch viewModel.state {
         case .idle, .loading:
             ProgressView("Loading…")
+                .frame(maxWidth: .infinity)
+                .listRowBackground(Color.clear)
 
-        case .failed:
+        case .failed(let errorMessage):
             VStack(spacing: 8) {
                 Text("Something went wrong")
+                Text(errorMessage)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
                 Button("Try Again") {
                     Task {
                         await viewModel.load()
                     }
                 }
             }
+            .frame(maxWidth: .infinity)
+            .listRowBackground(Color.clear)
 
         case .loaded(let users):
-            List(users) { user in
+            ForEach(users) { user in
                 VStack(alignment: .leading, spacing: 4) {
                     Text(user.name)
                         .font(.headline)

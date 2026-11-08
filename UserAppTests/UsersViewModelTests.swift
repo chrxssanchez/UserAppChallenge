@@ -53,6 +53,35 @@ struct UsersViewModelTests {
         
         #expect(mock.callCount == 1)
     }
+    
+    @Test func `refreshReloadsData`() async throws {
+        let users = try JSONDecoder().decode([User].self, from: MockData.usersJSON)
+        let mock = MockUsersClient(result: .success([]))
+        let viewModel = UsersViewModel(apiClient: mock)
+        await viewModel.load()
+        
+        mock.result = .success(users)
+        await viewModel.load()
+        
+        #expect(viewModel.state == .loaded(users))
+        #expect(mock.callCount == 2)
+    }
+    
+    @Test func `refreshShowsLoadingState`() async throws {
+        let users = try JSONDecoder().decode([User].self, from: MockData.usersJSON)
+        let mock = MockUsersClient(result: .success(users))
+        let viewModel = UsersViewModel(apiClient: mock)
+        await viewModel.load()
+        
+        var stateDuringRefresh: UsersState?
+        mock.onFetch = { stateDuringRefresh = viewModel.state }
+        await viewModel.load()
+        
+        #expect(stateDuringRefresh == .loading)
+        #expect(mock.callCount == 2)
+        #expect(viewModel.state == .loaded(users))
+        
+    }
 }
 
 @MainActor
