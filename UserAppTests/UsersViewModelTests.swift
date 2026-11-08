@@ -1,5 +1,5 @@
 //
-//  Untitled.swift
+//  UsersViewModelTests.swift
 //
 //  Created by Micah Napier on 12/12/2025.
 //
@@ -13,7 +13,7 @@ struct UsersViewModelTests {
     
     @Test func `loadSuccessShowsUsers`() async throws {
         let users = try JSONDecoder().decode([User].self, from: MockData.usersJSON)
-        let viewModel = UsersViewModel(apiClient: MockUsersClient(result: .success(users)))
+        let viewModel = UsersViewModel(apiClient: MockUsersClient(result: .success(users)), minimumLoadingDuration: .zero)
         
         await viewModel.load()
         
@@ -22,7 +22,7 @@ struct UsersViewModelTests {
     
     @Test func `loadFailureShowsError`() async throws {
         let error = URLError(.notConnectedToInternet)
-        let viewModel = UsersViewModel(apiClient: MockUsersClient(result: .failure(error)))
+        let viewModel = UsersViewModel(apiClient: MockUsersClient(result: .failure(error)),minimumLoadingDuration: .zero)
         
         await viewModel.load()
         
@@ -31,7 +31,7 @@ struct UsersViewModelTests {
     
     @Test func `showsLoadingWhileFetching`() async throws {
         let mock = MockUsersClient(result: .success([]))
-        let viewModel = UsersViewModel(apiClient: mock)
+        let viewModel = UsersViewModel(apiClient: mock, minimumLoadingDuration: .zero)
         var fetchingState: UsersState?
         mock.onFetch = { fetchingState = viewModel.state }
         
@@ -43,7 +43,7 @@ struct UsersViewModelTests {
     
     @Test func `secondLoadWhileLoadingIsIgnored`() async throws {
         let mock = MockUsersClient(result: .success([]))
-        let viewModel = UsersViewModel(apiClient: mock)
+        let viewModel = UsersViewModel(apiClient: mock, minimumLoadingDuration: .zero)
         mock.onFetch = {
             await viewModel.load()
         }
@@ -56,7 +56,7 @@ struct UsersViewModelTests {
     @Test func `refreshReloadsData`() async throws {
         let users = try JSONDecoder().decode([User].self, from: MockData.usersJSON)
         let mock = MockUsersClient(result: .success([]))
-        let viewModel = UsersViewModel(apiClient: mock)
+        let viewModel = UsersViewModel(apiClient: mock, minimumLoadingDuration: .zero)
         await viewModel.load()
         
         mock.result = .success(users)
@@ -69,7 +69,7 @@ struct UsersViewModelTests {
     @Test func `refreshShowsLoadingState`() async throws {
         let users = try JSONDecoder().decode([User].self, from: MockData.usersJSON)
         let mock = MockUsersClient(result: .success(users))
-        let viewModel = UsersViewModel(apiClient: mock)
+        let viewModel = UsersViewModel(apiClient: mock, minimumLoadingDuration: .zero)
         await viewModel.load()
         
         var stateDuringRefresh: UsersState?
@@ -82,7 +82,7 @@ struct UsersViewModelTests {
         
     }
     
-    @Test func `loadingLastsAtLeastFiveMinimumDuration`() async throws {
+    @Test func `loadingLastsAtLeastMinimumDuration`() async throws {
         let viewModel = UsersViewModel(
             apiClient: MockUsersClient(result: .success([])),
             minimumLoadingDuration: .milliseconds(300)

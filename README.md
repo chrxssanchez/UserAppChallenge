@@ -8,7 +8,7 @@
 - Refresh could start overlapping requests, and on a fast network the spinner only flashed.
 
 **Fixes:** 
-- Decode `[User]` directly and treat non-200s responses as errors. 
+- Decode `[User]` directly and treat non-2xxs responses as errors. 
 - The view model is `@MainActor` and `@Observable`, owned by the view with `@State`.
 - `load()` ignores calls while already loading, and Refresh is disabled meanwhile. 
 - Every state sits in one `List`, so pull to refresh works from any screen, including errors.

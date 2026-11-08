@@ -4,7 +4,7 @@ import SwiftUI
 
 struct UsersListView: View {
     @State private var viewModel = UsersViewModel(apiClient: UsersAPIClient())
-
+    
     var body: some View {
         NavigationStack {
             List{
@@ -13,21 +13,21 @@ struct UsersListView: View {
             .refreshable {
                 await viewModel.load()
             }
-                .navigationTitle("Users")
-                .toolbar {
-                    Button("Refresh") {
-                        Task {
-                            await viewModel.load()
-                        }
+            .navigationTitle("Users")
+            .toolbar {
+                Button("Refresh") {
+                    Task {
+                        await viewModel.load()
                     }
-                    .disabled(viewModel.isLoading)
                 }
-                .task {
-                    await viewModel.load()
-                }
+                .disabled(viewModel.isLoading)
+            }
+            .task {
+                await viewModel.load()
+            }
         }
     }
-
+    
     @ViewBuilder
     private var content: some View {
         switch viewModel.state {
@@ -35,7 +35,7 @@ struct UsersListView: View {
             ProgressView("Loading…")
                 .frame(maxWidth: .infinity)
                 .listRowBackground(Color.clear)
-
+            
         case .failed(let errorMessage):
             VStack(spacing: 8) {
                 Text("Something went wrong")
@@ -51,7 +51,7 @@ struct UsersListView: View {
             }
             .frame(maxWidth: .infinity)
             .listRowBackground(Color.clear)
-
+            
         case .loaded(let users):
             ForEach(users) { user in
                 VStack(alignment: .leading, spacing: 4) {
