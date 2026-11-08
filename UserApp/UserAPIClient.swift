@@ -2,16 +2,20 @@
 
 import Foundation
 
+protocol UsersFetch {
+    func fetchUsers() async throws -> [User]
+}
+
 struct UsersAPIClient {
     func fetchUsers() async throws -> [User] {
         let url = URL(string: "https://jsonplaceholder.typicode.com/users")!
-        let (data, _) = try await URLSession.shared.data(from: url)
-
-        struct Response: Decodable {
-            let users: [User]
+        let (data, response) = try await URLSession.shared.data(from: url)
+        
+        guard let http = response as? HTTPURLResponse,
+              (200..<300).contains(http.statusCode) else {
+            throw URLError(.badServerResponse)
         }
 
-        let response = try JSONDecoder().decode(Response.self, from: data)
-        return response.users
+        return try JSONDecoder().decode([User].self, from: data)
     }
 }
